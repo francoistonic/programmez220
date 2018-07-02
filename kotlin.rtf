@@ -1,0 +1,367 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fnil\fcharset0 Calibri;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i\fs24 \cf0 apply plugin: 'com.android.application'
+\f1 \
+\
+
+\f0 apply plugin: 'kotlin-android'\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f1 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0 \cf0 apply plugin: 'kotlin-android-extensions'
+\f1 \
+\
+
+\f0 // \'85
+\f1 \
+
+\f0  \
+dependencies \{\
+    implementation fileTree(dir: 'libs', include: ['*.jar'])\
+ \
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"\
+    // ...\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+
+\f1 \cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\i0 \cf0 \
+\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 buildscript \{\
+    ext.kotlin_version = '1.1.60'\
+	\
+    repositories \{\
+        google()\
+        jcenter()\
+    \}\
+	\
+    dependencies \{\
+        classpath 'com.android.tools.build:gradle:3.0.0'\
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"\
+ \
+    
+\f1 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+\cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\i0 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 public class Task \{\
+\
+  private long id;\
+  private String title;\
+  private String description;\
+  private Date creationDate;\
+\
+  public Task(long id, String title, String description, Date creationDate) \{\
+    this.id = id;\
+    this.title = title;\
+    this.description = description;\
+    this.creationDate = creationDate;\
+  \}\
+\
+  public long getId() \{\
+    return id;\
+  \}\
+\
+  public void setId(long id) \{\
+    this.id = id;\
+  \}\
+\
+  public String getTitle() \{\
+    return title;\
+  \}\
+\
+  public void setTitle(String title) \{\
+    this.title = title;\
+  \}\
+\
+  public String getDescription() \{\
+    return description;\
+  \}\
+\
+  public void setDescription(String description) \{\
+    this.description = description;\
+  \}\
+\
+  public Date getCreationDate() \{\
+    return creationDate;\
+  \}\
+\
+  public void setCreationDate(Date creationDate) \{\
+    this.creationDate = creationDate;\
+  \}\
+\
+  @Override\
+  public boolean equals(Object o) \{\
+    if (this == o) return true;\
+    if (o == null || getClass() != o.getClass()) return false;\
+\
+    Task task = (Task) o;\
+\
+    if (id != task.id) return false;\
+    if (title != null ? !title.equals(task.title) : task.title != null) return false;\
+    if (description != null ? !description.equals(task.description) : task.description != null)\
+      return false;\
+\
+    return creationDate != null ? creationDate.equals(task.creationDate) : task.creationDate == null;\
+  \}\
+\
+  @Override\
+  public int hashCode() \{\
+    int result = (int) (id ^ (id >>> 32));\
+    result = 31 * result + (title != null ? title.hashCode() : 0);\
+    result = 31 * result + (description != null ? description.hashCode() : 0);\
+    result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);\
+    return result;\
+  \}\
+\
+  @Override\
+  public String toString() \{\
+    return "Task [" +\
+      "id = " + id +\
+      ", title = " + title +\
+      ", description = " + description +\
+      ", creationDate = " + creationDate +\
+      "]";\
+  \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+
+\f1 \cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\i0 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() \{\
+\
+  override fun onBindViewHolder(holder: TaskViewHolder?, position: Int) \{\
+    TODO("not implemented")\
+  \}\
+\
+  override fun getItemCount(): Int \{\
+    TODO("not implemented")\
+  \}\
+\
+  override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TaskViewHolder \{\
+    TODO("not implemented")\
+  \}\
+\
+  class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+
+\f1\i0 \cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 class TaskAdapter(val taskList: List<Task>, val listener: (Task) -> Unit) :\
+	RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() \{\
+\
+  override fun onBindViewHolder(holder: TaskViewHolder, position: Int) =\
+    holder.bind(taskList.get(position), listener);\
+\
+  override fun getItemCount() = taskList.size\
+\
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder \{\
+    val rootView = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)\
+    return TaskViewHolder(rootView)\
+  \}\
+\
+  class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) \{\
+    fun bind(task: Task, listener: (Task) -> Unit) = with(itemView) \{\
+      tvTitle.text = task.title;\
+      tvDescription.text = task.description;\
+      setOnClickListener \{ listener(task) \}\
+    \}\
+  \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+
+\f1 \cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\i0\b \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i\b0 \cf0 <?xml version="1.0" encoding="utf-8"?>\
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"\
+  xmlns:app="http://schemas.android.com/apk/res-auto"\
+  android:layout_width="match_parent"\
+  android:layout_height="wrap_content"\
+  android:orientation="vertical">\
+\
+  <android.support.v7.widget.CardView\
+    android:layout_width="match_parent"\
+    android:layout_height="wrap_content"\
+    app:cardCornerRadius="5dp"\
+    app:cardElevation="1dp"\
+    app:cardUseCompatPadding="true"\
+    app:contentPadding="5dp">\
+\
+    <LinearLayout\
+      android:layout_width="match_parent"\
+      android:layout_height="wrap_content"\
+      android:orientation="vertical">\
+\
+      <TextView\
+        android:id="@+id/tvTitle"\
+        android:layout_width="match_parent"\
+        android:layout_height="wrap_content"\
+        android:padding="5dp"\
+        android:text="Titre d\'92une t\'e2che"\
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />\
+\
+      <TextView\
+        android:id="@+id/tvDescription"\
+        android:layout_width="match_parent"\
+        android:layout_height="wrap_content"\
+        android:padding="5dp"\
+        android:text="Description pour une t\'e2che"\
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />\
+    </LinearLayout>\
+  </android.support.v7.widget.CardView>\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+\cf0 </LinearLayout>\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f1\i0 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 <?xml version="1.0" encoding="utf-8"?>\
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"\
+  xmlns:app="http://schemas.android.com/apk/res-auto"\
+  android:layout_width="match_parent"\
+  android:layout_height="match_parent">\
+\
+  <android.support.design.widget.AppBarLayout\
+    android:layout_width="match_parent"\
+    android:layout_height="wrap_content"\
+    android:theme="@style/AppTheme.AppBarOverlay">\
+\
+    <android.support.v7.widget.Toolbar\
+      android:id="@+id/toolbar"\
+      android:layout_width="match_parent"\
+      android:layout_height="?attr/actionBarSize"\
+      android:background="?attr/colorPrimary"\
+      app:popupTheme="@style/AppTheme.PopupOverlay" />\
+\
+  </android.support.design.widget.AppBarLayout>\
+\
+  <include layout="@layout/content_main" />\
+\
+  <android.support.design.widget.FloatingActionButton\
+    android:id="@+id/fab"\
+    android:layout_width="wrap_content"\
+    android:layout_height="wrap_content"\
+    android:layout_gravity="bottom|end"\
+    android:layout_margin="@dimen/fab_margin"\
+    app:srcCompat="@drawable/ic_action_add" />\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+\cf0 </android.support.design.widget.CoordinatorLayout>\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f1\i0 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 <?xml version="1.0" encoding="utf-8"?>\
+<android.support.constraint.ConstraintLayout     \
+  xmlns:android="http://schemas.android.com/apk/res/android"\
+  xmlns:app="http://schemas.android.com/apk/res-auto"\
+  xmlns:tools="http://schemas.android.com/tools"\
+  android:layout_width="match_parent"\
+  android:layout_height="match_parent"\
+  app:layout_behavior="@string/appbar_scrolling_view_behavior"\
+  tools:showIn="@layout/activity_main">\
+\
+  <android.support.v7.widget.RecyclerView\
+    android:id="@+id/recyclerView"\
+    android:layout_width="0dp"\
+    android:layout_height="0dp"\
+    android:layout_marginBottom="8dp"\
+    android:layout_marginEnd="8dp"\
+    android:layout_marginStart="8dp"\
+    android:layout_marginTop="8dp"\
+    app:layout_constraintBottom_toBottomOf="parent"\
+    app:layout_constraintEnd_toEndOf="parent"\
+    app:layout_constraintStart_toStartOf="parent"\
+    app:layout_constraintTop_toTopOf="parent"\
+    tools:layout_editor_absoluteX="8dp"\
+    tools:layout_editor_absoluteY="8dp" />\
+\
+  <TextView\
+    android:id="@+id/tvNotTask"\
+    android:layout_width="wrap_content"\
+    android:layout_height="wrap_content"\
+    android:layout_marginBottom="8dp"\
+    android:layout_marginEnd="8dp"\
+    android:layout_marginStart="8dp"\
+    android:layout_marginTop="8dp"\
+    android:gravity="center"\
+    android:text="Aucune t\'e2che pour le moment."\
+    app:layout_constraintBottom_toBottomOf="parent"\
+    app:layout_constraintLeft_toLeftOf="parent"\
+    app:layout_constraintRight_toRightOf="parent"\
+    app:layout_constraintTop_toTopOf="parent"\
+    tools:layout_editor_absoluteX="8dp"\
+    tools:layout_editor_absoluteY="8dp" />\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+\cf0 </android.support.constraint.ConstraintLayout>\
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f1\i0 \cf0 \
+\pard\pardeftab720\ri-52\sl276\slmult1\qj\partightenfactor0
+
+\f0\i \cf0 class MainActivity : AppCompatActivity() \{\
+\
+  var id = 0L;\
+\
+  override fun onCreate(savedInstanceState: Bundle?) \{\
+    super.onCreate(savedInstanceState)\
+    setContentView(R.layout.activity_main)\
+    setSupportActionBar(toolbar)\
+\
+    val tasksList = ArrayList<Task>();\
+\
+    val task1 = Task(id++, "T\'e2che 1", "Description T\'e2che 1", Date());\
+    val task2 = task1.copy(id++, "T\'e2che 2");\
+    val task3 = task1.copy(id++, title="T\'e2che 3", description = "Il s'agit de la 3\'e8me t\'e2che");\
+    tasksList.add(task1)\
+    tasksList.add(task2)\
+    tasksList.add(task3)\
+\
+    recyclerView.layoutManager = LinearLayoutManager(this);\
+    recyclerView.adapter = TaskAdapter(tasksList) \{\
+      toast("$\{it.title\} Clicked")\
+    
+\f1 \}
+\f0 ;\
+\
+    fab.setOnClickListener \{ view ->\
+      tasksList.add(Task(id++, "T\'e2che $\{id\}", "Description de la t\'e2che $\{id\}", Date()))\
+      recyclerView.adapter.notifyDataSetChanged()\
+    \}\
+\
+    if(tasksList.size > 0) tvNotTask.visibility = View.GONE;\
+    else tvNotTask.visibility = View.VISIBLE\
+\
+  \}\
+\
+  private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\qj\partightenfactor0
+
+\f1 \cf0 \}\
+\pard\pardeftab720\ri-52\sl276\slmult1\sa200\partightenfactor0
+\cf0 \
+}

@@ -1,0 +1,67 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset0 Consolas;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww19360\viewh16100\viewkind0
+\deftab720
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0\fs22 \cf0 \
+\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f1 \cf0 aws_s3.tf\
+aws_cloudfront.tf\
+root.tf\
+variables.tf\
+output.tf\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0 \cf0 \
+aws_s3.tf :\
+\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f1 \cf0 # s3 bucket for terraform state files\uc0\u8232 resource "aws_s3_bucket" "com_programmez_terraform" \{\u8232     bucket = "$\{var.aws_s3_bucket_terraform\}"\u8232     acl    = "private"\u8232 \u8232     versioning \{\u8232         enabled = true\u8232     \}\u8232 \u8232     tags \{\u8232         Tool    = "$\{var.tags-tool\}"\u8232         Contact = "$\{var.tags-contact\}"\u8232     \}\u8232 \}\u8232 \u8232 # s3 bucket for front logs\u8232 resource "aws_s3_bucket" "front_logs" \{\u8232   bucket = "$\{terraform.workspace == "preprod" ? var.bucket_demo_logs_preprod : var.bucket_demo_logs\}"\u8232   acl    = "log-delivery-write"\u8232 \u8232   tags \{\u8232     Tool    = "$\{var.tags-tool\}"\u8232     Contact = "$\{var.tags-contact\}"\u8232   \}\u8232 \}\u8232 \u8232 # s3 bucket reached by cloudfront\u8232 resource "aws_s3_bucket" "front_bucket" \{\u8232   bucket = "$\{terraform.workspace == "preprod" ? var.bucket_demo_preprod : var.bucket_demo\}"\u8232   acl    = "private"\u8232 \u8232   force_destroy = false\u8232 \u8232   depends_on = ["aws_s3_bucket.front_bucket-logs"]\u8232 \u8232   versioning \{\u8232     enabled = true\u8232   \}\u8232 \u8232   logging \{\u8232     target_bucket = "$\{aws_s3_bucket.front_bucket-logs.bucket\}"\u8232     target_prefix = "root/"\u8232   \}\u8232 \u8232   website \{\u8232     index_document = "index.html"\u8232   \}\u8232 \u8232   tags \{\u8232     Tool    = "$\{var.tags-tool\}"\u8232     Contact = "$\{var.tags-contact\}"\u8232   \}\u8232 \u8232   cors_rule \{\u8232     allowed_headers = ["*"]\u8232     allowed_methods = ["GET", "PUT", "POST", "DELETE"]\u8232     allowed_origins = ["*"]\u8232   \}\u8232 \u8232   policy = <<POLICY\u8232 \{\u8232 "Version": "2012-10-17",\u8232 "Statement": [\u8232 \{\u8232   "Sid": "PublicReadGetObject",\u8232   "Effect": "Allow",\u8232   "Principal": "*",\u8232   "Action": "s3:GetObject",\u8232   "Resource": "arn:aws:s3:::$\{terraform.workspace == "preprod" ? var.bucket_demo_preprod : var.bucket_demo\}/*"\u8232 \}\u8232 ]\u8232 \}\u8232 POLICY\u8232 \}
+\f0 \
+\
+aws_cloudfront.tf :\
+\
+
+\f1 resource "aws_cloudfront_distribution" "front_cdn" \{\uc0\u8232 \u8232   # Use All Edge Locations (Best Performance)\u8232   price_class  = "PriceClass_All"\u8232   http_version = "http2"\u8232 \u8232   "origin" \{\u8232     origin_id   = "origin-bucket-$\{aws_s3_bucket.front_bucket.id\}"\u8232     domain_name = "$\{aws_s3_bucket.front_bucket.website_endpoint\}"\u8232     origin_path = "/root"\u8232 \u8232     custom_origin_config \{\u8232       origin_protocol_policy = "http-only"\u8232       http_port              = "80"\u8232       https_port             = "443"\u8232       origin_ssl_protocols   = ["TLSv1"]\u8232     \}\u8232   \}\u8232 \u8232   enabled             = true\u8232   is_ipv6_enabled     = true\u8232   default_root_object = "index.html"\u8232 \u8232   logging_config \{\u8232     include_cookies = true\u8232     bucket          = "$\{aws_s3_bucket.front_bucket-logs.bucket\}.s3.amazonaws.com"\u8232     prefix          = "cloudfront/"\u8232   \}\u8232 \u8232 \u8232   "default_cache_behavior" \{\u8232     allowed_methods = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]\u8232     cached_methods  = ["GET", "HEAD"]\u8232 \u8232     "forwarded_values" \{\u8232       query_string = false\u8232 \u8232       cookies \{\u8232         forward = "none"\u8232       \}\u8232     \}\u8232 \u8232     min_ttl          = "21600"\u8232     default_ttl      = "86400"\u8232     max_ttl          = "31536000"\u8232     target_origin_id = "origin-bucket-$\{aws_s3_bucket.front_bucket.id\}"\u8232     // This redirects any HTTP request to HTTPS. Security first!\u8232     viewer_protocol_policy = "redirect-to-https"\u8232     compress               = true\u8232   \}\u8232   "restrictions" \{\u8232     "geo_restriction" \{\u8232       restriction_type = "none"\u8232     \}\u8232   \}\u8232   # Pre-requisits: Put a SSL cert on AWS store in us-east-1 region\u8232   # Generate a csr in loacalhost, make requst to IT, get the returned cert\u8232   # put the cert + intermediate + private key in AWS (click in import button)\u8232   "viewer_certificate" \{\u8232     # default certificate if you don't already added one in AWS certificate manager\u8232     cloudfront_default_certificate = true\u8232     minimum_protocol_version = "TLSv1.1_2016"\u8232   \}\u8232   aliases = ["$\{var.demo_domain_name\}"]\u8232 \u8232   depends_on = ["aws_s3_bucket.front_bucket"]\u8232 \u8232   tags \{\u8232     Tool    = "$\{var.tags-tool\}"\u8232     Contact = "$\{var.tags-contact\}"\u8232   \}\u8232 \}
+\f0 \uc0\u8232 \
+root.tf :\
+\
+
+\f1 provider "aws" \{\
+  region = "eu-central-1"\
+\}\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0 \cf0 \
+variables.tf :\
+\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f1 \cf0 variable "default-aws-region" \{\uc0\u8232     default = "eu-central-1"\u8232 \}\u8232 \u8232 variable "tags-tool" \{\u8232     default = "Terraform"\u8232 \}\u8232 \u8232 variable "tags-contact" \{\u8232     default = "Aurelie Vache"\u8232 \}\u8232 \u8232 variable "aws_s3_bucket_terraform" \{\u8232     default = "com.programmez.terraform"\u8232 \}\u8232 \u8232 variable "bucket_demo" \{\u8232   default = "com.programmez.demo"\u8232 \}\u8232 \u8232 variable "bucket_demo_logs" \{\u8232   default = "com.programmez.demo.logs"\u8232 \}\u8232 \u8232 variable "bucket_demo_preprod" \{\u8232   default = "com.programmez.demo.preprod.demo"\u8232 \}\u8232 \u8232 variable "bucket_demo_logs_preprod" \{\u8232   default = "com.programmez.demo.preprod.demo.logs"\u8232 \}\u8232 \u8232 variable "demo_domain_name" \{\u8232   default = "demo.programmez.com"\u8232 \}\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0 \cf0 \
+\
+output.tf :\
+\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f1 \cf0 output "cloudfront_id" \{\uc0\u8232   value = "$\{aws_cloudfront_distribution.front_cdn.id\}"\u8232 \}\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0 \cf0 \
+\
+backend.tf:\
+\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f1 \cf0 # Backend configuration is loaded early so we can't use variables\uc0\u8232 terraform \{\u8232   backend "s3" \{\u8232     region = "eu-central-1"\u8232     bucket = "com.programmez.terraform"\u8232     key = "state.tfstate"\u8232     encrypt = true    #AES-256 encryption\u8232   \}\u8232 \}\
+\pard\pardeftab720\ri-9\sl276\slmult1\partightenfactor0
+
+\f0 \cf0 \
+}
